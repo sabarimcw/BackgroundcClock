@@ -2,19 +2,42 @@
 //
 
 #include <iostream>
+#include <thread>
+#include <chrono>
+#include <sstream>
+#include <Windows.h>
 
-int main()
-{
-    std::cout << "Hello World!\n";
+#pragma comment(lib, "winmm.lib")
+
+void timer(std::chrono::seconds time) {
+    std::this_thread::sleep_for(time);
+    wchar_t file_path[] = L"C:\\Users\\sabar\\source\\repos\\clock\\ringtone.wav";
+
+    PlaySound(file_path, NULL, SND_FILENAME | SND_SYNC);
+
+    FILE* file;
+    if (fopen_s(&file, "output.txt", "a") == 0) {
+        fprintf(file, "Timer closed \n");
+        fclose(file);
+    }
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+int main(int argc, char* argv[])
+{
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+    std::stringstream ss(argv[1]);
+    int seconds;
+
+    if (!(ss >> seconds)) {
+        std::cerr << "first argument must be the time in seconds";
+        return -1;
+    }
+    
+
+    std::chrono::seconds time(seconds);
+    for (int i = 0; i < argc; i++) {
+        std::cout << argv[i] << std::endl;
+    }
+
+    timer(time);
+}
